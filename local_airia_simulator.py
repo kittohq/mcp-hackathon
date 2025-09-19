@@ -228,7 +228,7 @@ class LocalExternalReconAgent(LocalAgent):
         config = AgentConfig(
             name="External Recon Agent",
             description="Performs external reconnaissance using Bright Data tools",
-            model=os.getenv("AI_MODEL", "gpt-4")
+            model=os.getenv("AI_MODEL", "gpt-3.5-turbo")
         )
         super().__init__(config)
         self.mcp_client = LocalMCPClient("brightdata")
@@ -236,8 +236,12 @@ class LocalExternalReconAgent(LocalAgent):
     async def execute_task(self, task: str, params: Dict = None) -> Dict:
         """Execute reconnaissance task"""
 
+        # Use custom pentest name
+        pentest_name = os.getenv("DEFAULT_PENTEST_NAME", "my-first-external-pentest")
+
         # Use AI to understand task and decide what to do
         prompt = f"""
+Pentest Name: {pentest_name}
 Task: {task}
 Target: {params.get('target', 'unknown')}
 
@@ -298,7 +302,7 @@ class LocalInternalPentestAgent(LocalAgent):
         config = AgentConfig(
             name="Internal Pentest Agent",
             description="Performs internal penetration testing using NodeZero tools",
-            model=os.getenv("AI_MODEL", "gpt-4")
+            model=os.getenv("AI_MODEL", "gpt-3.5-turbo")
         )
         super().__init__(config)
         self.mcp_client = LocalMCPClient("nodezero")
@@ -370,7 +374,7 @@ class LocalSecurityOrchestrator(LocalAgent):
         config = AgentConfig(
             name="Security Orchestrator",
             description="Orchestrates security assessments by coordinating other agents",
-            model=os.getenv("AI_MODEL", "gpt-4")
+            model=os.getenv("AI_MODEL", "gpt-3.5-turbo")
         )
         super().__init__(config)
         self.external_agent = LocalExternalReconAgent()

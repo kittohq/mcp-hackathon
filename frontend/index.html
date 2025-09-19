@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Security Assessment Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .vendors {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .vendor-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .input-section {
+            background: #f7f9fc;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .assessment-types {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .assessment-type {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .assessment-type:hover {
+            border-color: #667eea;
+            background: #f0f0ff;
+        }
+
+        .assessment-type.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .assessment-type h3 {
+            margin-bottom: 5px;
+        }
+
+        .assessment-type p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            display: block;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-section {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .phase {
+            background: #f7f9fc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .phase-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e6ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .phase.active .phase-icon {
+            background: #667eea;
+            color: white;
+        }
+
+        .phase.complete .phase-icon {
+            background: #48bb78;
+            color: white;
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .risk-meter {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .risk-score {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .risk-level {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .risk-level.critical {
+            background: #ff4444;
+            color: white;
+        }
+
+        .risk-level.high {
+            background: #ff8844;
+            color: white;
+        }
+
+        .risk-level.medium {
+            background: #ffbb33;
+            color: white;
+        }
+
+        .risk-level.low {
+            background: #00C851;
+            color: white;
+        }
+
+        .findings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .finding-card {
+            background: #f7f9fc;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .finding-card h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .finding-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e6ed;
+        }
+
+        .finding-item:last-child {
+            border-bottom: none;
+        }
+
+        .attack-chain {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .attack-chain h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .chain-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .chain-step:before {
+            content: "→";
+            margin-right: 10px;
+            font-size: 20px;
+            color: #ffc107;
+        }
+
+        .recommendations {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .recommendations h3 {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+
+        .recommendation-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #c3e6cb;
+        }
+
+        .recommendation-item:before {
+            content: "✓";
+            margin-right: 10px;
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ AI Security Assessment Platform</h1>
+            <p>Production-Safe Security Testing with AI Agents</p>
+            <div class="vendors">
+                <span class="vendor-badge">Strands Agents</span>
+                <span class="vendor-badge">Bright Data MCP</span>
+                <span class="vendor-badge">NodeZero MCP</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Input Section -->
+            <div class="input-section" id="inputSection">
+                <div class="input-group">
+                    <label for="targetInput">Target Domain</label>
+                    <input
+                        type="text"
+                        id="targetInput"
+                        placeholder="example.com"
+                        value="example.com"
+                    >
+                </div>
+
+                <label>Assessment Type</label>
+                <div class="assessment-types">
+                    <div class="assessment-type active" data-type="full">
+                        <h3>🎯 Full Assessment</h3>
+                        <p>External + Internal</p>
+                    </div>
+                    <div class="assessment-type" data-type="external">
+                        <h3>🌐 External Only</h3>
+                        <p>OSINT & Recon</p>
+                    </div>
+                    <div class="assessment-type" data-type="internal">
+                        <h3>🏢 Internal Only</h3>
+                        <p>Network Pentest</p>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="startAssessment()">
+                    Start Security Assessment
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section" id="progressSection">
+                <div class="loader"></div>
+                <h2>Running Security Assessment...</h2>
+                <p style="margin: 20px 0; opacity: 0.7;">This may take a few minutes</p>
+
+                <div class="phases">
+                    <div class="phase" id="phase1">
+                        <div class="phase-icon">1</div>
+                        <div>
+                            <strong>External Reconnaissance</strong>
+                            <p style="opacity: 0.7;">Scanning with Bright Data MCP</p>
+                        </div>
+                    </div>
+                    <div class="phase" id="phase2">
+                        <div class="phase-icon">2</div>
+                        <div>
+                            <strong>Internal Penetration Testing</strong>
+                            <p style="opacity: 0.7;">Testing with NodeZero MCP</p>
+                        </div>
+                    </div>
+                    <div class="phase" id="phase3">
+                        <div class="phase-icon">3</div>
+                        <div>
+                            <strong>Attack Chain Analysis</strong>
+                            <p style="opacity: 0.7;">Correlating findings</p>
+                        </div>
+                    </div>
+                    <div class="phase" id="phase4">
+                        <div class="phase-icon">4</div>
+                        <div>
+                            <strong>Risk Assessment</strong>
+                            <p style="opacity: 0.7;">Generating report</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection">
+                <div class="risk-meter">
+                    <div class="risk-score" id="riskScore">72</div>
+                    <div class="risk-level high" id="riskLevel">HIGH RISK</div>
+                </div>
+
+                <div class="findings-grid">
+                    <div class="finding-card">
+                        <h3>🌐 External Findings</h3>
+                        <div id="externalFindings">
+                            <div class="finding-item">Exposed admin panel at /admin</div>
+                            <div class="finding-item">API key leaked on GitHub</div>
+                            <div class="finding-item">Missing security headers</div>
+                        </div>
+                    </div>
+
+                    <div class="finding-card">
+                        <h3>🏢 Internal Findings</h3>
+                        <div id="internalFindings">
+                            <div class="finding-item">3 unpatched systems discovered</div>
+                            <div class="finding-item">Weak network segmentation</div>
+                            <div class="finding-item">Database server compromised</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-chain" id="attackChain">
+                    <h3>🔗 Attack Chain Discovered</h3>
+                    <div class="chain-step">GitHub leak discovered</div>
+                    <div class="chain-step">API key used for authentication</div>
+                    <div class="chain-step">Internal network accessed</div>
+                    <div class="chain-step">Privilege escalation achieved</div>
+                    <div class="chain-step">Database compromised</div>
+                </div>
+
+                <div class="recommendations">
+                    <h3>🛡️ Immediate Recommendations</h3>
+                    <div id="recommendations">
+                        <div class="recommendation-item">Rotate all API keys immediately</div>
+                        <div class="recommendation-item">Patch critical vulnerabilities</div>
+                        <div class="recommendation-item">Implement network segmentation</div>
+                        <div class="recommendation-item">Enable MFA on all admin accounts</div>
+                        <div class="recommendation-item">Deploy WAF for external services</div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="resetAssessment()" style="margin-top: 30px;">
+                    Run Another Assessment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedType = 'full';
+
+        // Handle assessment type selection
+        document.querySelectorAll('.assessment-type').forEach(type => {
+            type.addEventListener('click', function() {
+                document.querySelectorAll('.assessment-type').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                selectedType = this.dataset.type;
+            });
+        });
+
+        async function startAssessment() {
+            const target = document.getElementById('targetInput').value;
+            if (!target) {
+                alert('Please enter a target domain');
+                return;
+            }
+
+            // Show progress section
+            document.getElementById('inputSection').style.display = 'none';
+            document.getElementById('progressSection').classList.add('active');
+
+            // Simulate assessment phases
+            await simulatePhases();
+
+            // In real implementation, call your backend API:
+            // const response = await fetch('/api/assess', {
+            //     method: 'POST',
+            //     headers: {'Content-Type': 'application/json'},
+            //     body: JSON.stringify({ target, type: selectedType })
+            // });
+            // const results = await response.json();
+            // displayResults(results);
+        }
+
+        async function simulatePhases() {
+            const phases = ['phase1', 'phase2', 'phase3', 'phase4'];
+
+            for (let i = 0; i < phases.length; i++) {
+                const phase = document.getElementById(phases[i]);
+                phase.classList.add('active');
+
+                // Simulate processing time
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                phase.classList.remove('active');
+                phase.classList.add('complete');
+            }
+
+            // Show results
+            setTimeout(() => {
+                document.getElementById('progressSection').classList.remove('active');
+                document.getElementById('resultsSection').classList.add('active');
+            }, 500);
+        }
+
+        function displayResults(results) {
+            // Update risk score
+            document.getElementById('riskScore').textContent = results.risk_score || '72';
+
+            const riskLevel = document.getElementById('riskLevel');
+            riskLevel.textContent = results.risk_level || 'HIGH RISK';
+            riskLevel.className = `risk-level ${(results.risk_level || 'high').toLowerCase()}`;
+
+            // Update findings
+            if (results.external_findings) {
+                document.getElementById('externalFindings').innerHTML =
+                    results.external_findings.map(f => `<div class="finding-item">${f}</div>`).join('');
+            }
+
+            if (results.internal_findings) {
+                document.getElementById('internalFindings').innerHTML =
+                    results.internal_findings.map(f => `<div class="finding-item">${f}</div>`).join('');
+            }
+
+            // Update attack chain
+            if (results.attack_chain) {
+                document.getElementById('attackChain').innerHTML =
+                    '<h3>🔗 Attack Chain Discovered</h3>' +
+                    results.attack_chain.map(step => `<div class="chain-step">${step}</div>`).join('');
+            }
+
+            // Update recommendations
+            if (results.recommendations) {
+                document.getElementById('recommendations').innerHTML =
+                    results.recommendations.map(r => `<div class="recommendation-item">${r}</div>`).join('');
+            }
+        }
+
+        function resetAssessment() {
+            document.getElementById('resultsSection').classList.remove('active');
+            document.getElementById('inputSection').style.display = 'block';
+
+            // Reset phases
+            document.querySelectorAll('.phase').forEach(phase => {
+                phase.classList.remove('active', 'complete');
+            });
+        }
+    </script>
+</body>
+</html>
